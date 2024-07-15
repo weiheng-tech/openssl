@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
@@ -213,6 +214,25 @@ func (c *Ctx) UseCertificate(cert *Certificate) error {
 	return nil
 }
 
+// UseCertificateFile configures the context to present the certificate in the
+func (c *Ctx) UseCertificateFile(file string) error {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	fp := C.CString(file)
+	defer C.free(unsafe.Pointer(fp))
+	fType := C.SSL_FILETYPE_PEM
+	ext := filepath.Ext(file)
+	switch ext {
+	case "x509":
+		fType = C.SSL_FILETYPE_ASN1
+	}
+
+	if int(C.SSL_CTX_use_certificate_file(c.ctx, fp, fType)) != 1 {
+		return errorFromErrorQueue()
+	}
+	return nil
+}
+
 // AddChainCertificate adds a certificate to the chain presented in the
 // handshake.
 func (c *Ctx) AddChainCertificate(cert *Certificate) error {
@@ -234,6 +254,26 @@ func (c *Ctx) UsePrivateKey(key PrivateKey) error {
 	defer runtime.UnlockOSThread()
 	c.key = key
 	if int(C.SSL_CTX_use_PrivateKey(c.ctx, key.evpPKey())) != 1 {
+		return errorFromErrorQueue()
+	}
+	return nil
+}
+
+// UsePrivateKeyFile configures the context to use the private key in the given
+func (c *Ctx) UsePrivateKeyFile(file string) error {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	fp := C.CString(file)
+	defer C.free(unsafe.Pointer(fp))
+
+	fType := C.SSL_FILETYPE_PEM
+	ext := filepath.Ext(file)
+	switch ext {
+	case "x509":
+		fType = C.SSL_FILETYPE_ASN1
+	}
+
+	if int(C.SSL_CTX_use_PrivateKey_file(c.ctx, fp, fType)) != 1 {
 		return errorFromErrorQueue()
 	}
 	return nil
