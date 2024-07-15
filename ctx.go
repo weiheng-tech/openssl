@@ -227,7 +227,7 @@ func (c *Ctx) UseCertificateFile(file string) error {
 		fType = C.SSL_FILETYPE_ASN1
 	}
 
-	if int(C.SSL_CTX_use_certificate_file(c.ctx, fp, fType)) != 1 {
+	if int(C.SSL_CTX_use_certificate_file(c.ctx, fp, C.int(fType))) != 1 {
 		return errorFromErrorQueue()
 	}
 	return nil
@@ -273,7 +273,7 @@ func (c *Ctx) UsePrivateKeyFile(file string) error {
 		fType = C.SSL_FILETYPE_ASN1
 	}
 
-	if int(C.SSL_CTX_use_PrivateKey_file(c.ctx, fp, fType)) != 1 {
+	if int(C.SSL_CTX_use_PrivateKey_file(c.ctx, fp, C.int(fType))) != 1 {
 		return errorFromErrorQueue()
 	}
 	return nil
