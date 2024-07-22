@@ -223,7 +223,7 @@ func (c *Ctx) UseCertificateFile(file string) error {
 	fType := C.SSL_FILETYPE_PEM
 	ext := filepath.Ext(file)
 	switch ext {
-	case "x509":
+	case ".x509":
 		fType = C.SSL_FILETYPE_ASN1
 	}
 
@@ -269,7 +269,7 @@ func (c *Ctx) UsePrivateKeyFile(file string) error {
 	fType := C.SSL_FILETYPE_PEM
 	ext := filepath.Ext(file)
 	switch ext {
-	case "x509":
+	case ".x509":
 		fType = C.SSL_FILETYPE_ASN1
 	}
 
