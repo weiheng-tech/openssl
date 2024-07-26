@@ -233,6 +233,18 @@ func (c *Ctx) UseCertificateFile(file string) error {
 	return nil
 }
 
+func (c *Ctx) UseCertificateChainFile(file string) error {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	fp := C.CString(file)
+	defer C.free(unsafe.Pointer(fp))
+
+	if int(C.SSL_CTX_use_certificate_chain_file(c.ctx, fp)) != 1 {
+		return errorFromErrorQueue()
+	}
+	return nil
+}
+
 // AddChainCertificate adds a certificate to the chain presented in the
 // handshake.
 func (c *Ctx) AddChainCertificate(cert *Certificate) error {
